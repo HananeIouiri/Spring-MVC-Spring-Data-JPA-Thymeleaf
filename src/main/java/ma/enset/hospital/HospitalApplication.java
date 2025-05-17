@@ -2,6 +2,7 @@ package ma.enset.hospital;
 
 import ma.enset.hospital.entities.Patient;
 import ma.enset.hospital.repository.PatientRepository;
+import ma.enset.hospital.security.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
@@ -40,7 +42,8 @@ public class HospitalApplication {
 		};
 	}
 		@Bean
-		CommandLineRunner commandLineRunner(JdbcUserDetailsManager jdbcUserDetailsManager, PasswordEncoder passwordEncoder) {
+		CommandLineRunner commandLineRunner(JdbcUserDetailsManager jdbcUserDetailsManager) {
+			PasswordEncoder passwordEncoder=passwordEncoder(); // Sera injecté automatiquement
 			return args -> {
 				if (!jdbcUserDetailsManager.userExists("user11")) {
 					UserDetails user1 = User.withUsername("user11")
@@ -67,6 +70,25 @@ public class HospitalApplication {
 				}
 			};
 		}
+	CommandLineRunner commandLineRunnerUserDetails(AccountService accountService) {
+		return args -> {
+			accountService.addNewRole("USER");
+			accountService.addNewRole("ADMIN");
+
+			accountService.addNewUser("user1", "1234", "user1@gmail.com", "1234");
+			accountService.addNewUser("user2", "1234", "user2@gmail.com", "1234");
+			accountService.addNewUser("admin", "1234", "admin@gmail.com", "1234");
+
+			accountService.addRoleToUser("user1", "USER");
+			accountService.addRoleToUser("user2", "USER");
+			accountService.addRoleToUser("admin", "USER");
+			accountService.addRoleToUser("admin", "ADMIN");
+		};
+	}
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
 	}
 

@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
+import ma.enset.hospital.security.service.UserDetailsServiceImpl;
 import javax.sql.DataSource;
 
 @Configuration
@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 public class SecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
+    private UserDetailsServiceImpl userDetailsServiceImpl;
     @Bean
     public JdbcUserDetailsManager jdbcUserDetailsManager (DataSource dataSource) {
         return new JdbcUserDetailsManager(dataSource) ;
@@ -55,6 +56,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .accessDeniedPage("/notAuthorized")
                 )
+                .userDetailsService(userDetailsServiceImpl)
                 .build();
     }
 
